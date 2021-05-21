@@ -11,6 +11,7 @@ enum Choices
     UPDATE,
     NEW,
     DELETE,
+    BACKUP,
     END
 };
 
@@ -21,6 +22,7 @@ void newRecord(std::fstream &);
 void deleteRecord(std::fstream &);
 void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
+void backup(std::fstream &,std::fstream &);
 
 int main(int argc, char const *argv[])
 {
@@ -29,6 +31,13 @@ int main(int argc, char const *argv[])
     if (!inOutCredit)
     {
         std::cerr << "File could not be opened." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    std::fstream backUpFile("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
+
+    if (!backUpFile)
+    {
+        std::cerr << "Backup File could not be opened." << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -50,6 +59,9 @@ int main(int argc, char const *argv[])
         case Choices::DELETE:
             deleteRecord(inOutCredit);
             break;
+        case Choices::BACKUP:
+            backup(inOutCredit,backUpFile);
+            break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
             break;
@@ -69,13 +81,24 @@ Choices enterChoice()
               << "2- update an account" << std::endl
               << "3- add a new account" << std::endl
               << "4- delete an account" << std::endl
-              << "5- end program\n? " << std::endl;
+              << "5- Backup your account" << std::endl
+              << "6- end program\n? " << std::endl;
     int menuChoice;
     std::cin >> menuChoice;
 
     return static_cast<Choices>(menuChoice);
 }
+//BACKUP
+void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
+    std::string line;
+            while(getline(inOutCredit,line)){
+            backUpFile<< line << "\n";
+        }
+ 
+        std::cout << "Copy Finished \n";
+ 
 
+}
 void createTextFile(std::fstream &readFromFile)
 {
     std::ofstream outPrintFile("../print.txt", std::ios::out);
