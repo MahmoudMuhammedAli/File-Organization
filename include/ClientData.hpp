@@ -10,10 +10,11 @@ private:
     char lastName[15];
     char firstName[10];
     double balance;
+    int branchID;
 
 public:
     ClientData(int = 0, const std::string & = "",
-               const std::string & = "", double = 0.0);
+               const std::string & = "", double = 0.0,int = 0);
 
     void setAccountNumber(int);
     int getAccountNumber() const;
@@ -26,6 +27,9 @@ public:
 
     void setBalance(double);
     double getBalance() const;
+
+    void setBranchID(int);
+    int getBranchID() const;
 };
 
 #endif

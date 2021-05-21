@@ -2,7 +2,7 @@
 #include <string>
 
 ClientData::ClientData(int accountNumberValue, const std::string &lastName,
-                       const std::string &firstName, double balanceValue)
+                       const std::string &firstName, double balanceValue,int branchID)
     : accountNumber(accountNumberValue), balance(balanceValue)
 {
     setFirstName(firstName);
@@ -53,4 +53,14 @@ void ClientData::setBalance(double balanceValue)
 double ClientData::getBalance() const
 {
     return balance;
+}
+
+
+int ClientData::getBranchID() const
+{
+    return branchID;
+}
+void ClientData::setBranchID(int branchIDValue)
+{
+    branchID = branchIDValue;
 }
