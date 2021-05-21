@@ -97,6 +97,7 @@ void createTextFile(std::fstream &readFromFile)
 
     while (!readFromFile.eof())
     {
+        //das
         if (client.getAccountNumber() != 0)
             outputLine(outPrintFile, client);
 
