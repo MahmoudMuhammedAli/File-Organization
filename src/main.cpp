@@ -34,6 +34,7 @@ int main(int argc, char const *argv[])
     {
         std::cerr << "File could not be opened." << std::endl;
         exit(EXIT_FAILURE);
+        //TODO: if the file doesn't exist iniate one with 100 cells
     }
     std::fstream backUpFile("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
 
@@ -41,6 +42,7 @@ int main(int argc, char const *argv[])
     {
         std::cerr << "Backup File could not be opened." << std::endl;
         exit(EXIT_FAILURE);
+         //TODO: if the file doesn't exist iniate one with 100 cells
     }
     Choices choice;
 
@@ -125,6 +127,8 @@ void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
     //attempt4
 
     std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
+
+    //TODO: Fix backup and restore
 
 }
 void createTextFile(std::fstream &readFromFile)
