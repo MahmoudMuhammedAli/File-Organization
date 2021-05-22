@@ -96,12 +96,13 @@ Choices enterChoice()
 //BACKUP
 void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
    //ATTEMPT 1
-    // std::string line;
-    //         while(getline(inOutCredit,line)){
-    //         backUpFile<< line << "\n";
-    //     }
+   backUpFile.clear();
+    std::string line;
+            while(getline(inOutCredit,line)){
+            backUpFile<< line << "\n";
+        }
  
-    //     std::cout << "Copy Finished \n";
+        std::cout << "Copy Finished \n";
 
 
     //ATTEMPT 2
