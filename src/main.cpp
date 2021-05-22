@@ -124,14 +124,14 @@ Choices enterChoice()
 void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
 {
     //ATTEMPT 1
-    backUpFile.clear();
-    std::string line;
-    while (getline(inOutCredit, line))
-    {
-        backUpFile << line << "\n";
-    }
+    // backUpFile.clear();
+    // std::string line;
+    // while (getline(inOutCredit, line))
+    // {
+    //     backUpFile << line << "\n";
+    // }
 
-    std::cout << "Copy Finished \n";
+    // std::cout << "Copy Finished \n";
 
     //ATTEMPT 2
     // if (inOutCredit.is_open() && backUpFile.is_open())
@@ -152,6 +152,15 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
     //attempt4
 
     //std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
+
+
+//attempt 5
+
+    copy(istreambuf_iterator<char>(inOutCredit),
+    istreambuf_iterator<char>(),
+    ostreambuf_iterator<char>(backUpFile)
+    );
+    cout<< "COPY FINISHED!"<<endl;
 
     //TODO: Fix backup and restore
 }
@@ -249,6 +258,7 @@ void newRecord(std::fstream &insertInFile)
         std::cerr << "Account #" << accountNumber
                   << " already contains information." << std::endl;
     }
+    insertInFile.close();
 }
 
 void deleteRecord(std::fstream &deleteFromFile)
