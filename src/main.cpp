@@ -127,7 +127,7 @@ void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
 
     //attempt4
 
-    std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
+   // std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
 
     //TODO: Fix backup and restore
 
