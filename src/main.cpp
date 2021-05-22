@@ -29,15 +29,15 @@ void restore(std::fstream &, std::fstream &);
 using namespace std;
 int main(int argc, char const *argv[])
 {
-
-    std::fstream inOutCredit("../credit.dat", std::ios::in | std::ios::out | std::ios::binary);
+    fstream inOutCredit ;
+    inOutCredit.open("../credit.dat", std::ios::in | std::ios::out | std::ios::binary);
 
     if (!inOutCredit)
     {
-        ofstream outCredit("../credit.dat", ios::out | ios::binary);
+        inOutCredit.open("../credit.dat", ios::out | ios::binary);
 
         // exit program if ofstream could not open file
-        if (!outCredit)
+        if (!inOutCredit)
         {
             cerr << "File could not be opened." << endl;
             exit(EXIT_FAILURE);
@@ -45,9 +45,9 @@ int main(int argc, char const *argv[])
         ClientData blankClient; // constructor zeros out each data member
         // output 100 blank records to file
         for (int i = 0; i < 100; ++i)
-            outCredit.write(reinterpret_cast<const char *>(&blankClient),
+            inOutCredit.write(reinterpret_cast<const char *>(&blankClient),
                             sizeof(ClientData));
-        outCredit.close();
+        inOutCredit.close();
     }
 
 
