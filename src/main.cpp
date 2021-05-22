@@ -23,49 +23,51 @@ void newRecord(std::fstream &);
 void deleteRecord(std::fstream &);
 void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
-void backup(std::fstream &,std::fstream &);
-void restore(std::fstream &,std::fstream &);
+void backup(std::fstream &, std::fstream &);
+void restore(std::fstream &, std::fstream &);
 
+using namespace std;
 int main(int argc, char const *argv[])
 {
 
-    // ofstream outCredit( "credit.dat", ios::out | ios::binary );
-    // if(!outCredit){
-    // // exit program if ofstream could not open file
-    // if ( !outCredit )
-    // {
-    // cerr << "File could not be opened." << endl;
-    // exit( EXIT_FAILURE );
-    // } // end if
-    // ClientData blankClient; // constructor zeros out each data member
-    // // output 100 blank records to file
-    // for ( int i = 0; i < 100; ++i )
-    // outCredit.write( reinterpret_cast< const char * >( &blankClient ),
-    // sizeof( ClientData ) );
-    // outCredit.close();
-    // }
-    // fstream inoutCredit( "credit.dat", ios::out | ios::binary );
-    // if ( !inoutCredit )
-    // {
-    // cerr << "File could not be opened." << endl;
-    // exit( EXIT_FAILURE );
-    // }
-    
     std::fstream inOutCredit("../credit.dat", std::ios::in | std::ios::out | std::ios::binary);
 
     if (!inOutCredit)
     {
-        std::cerr << "File could not be opened." << std::endl;
-        exit(EXIT_FAILURE);
-        //TODO: if the file doesn't exist iniate one with 100 cells
+        ofstream outCredit("../credit.dat", ios::out | ios::binary);
+
+        // exit program if ofstream could not open file
+        if (!outCredit)
+        {
+            cerr << "File could not be opened." << endl;
+            exit(EXIT_FAILURE);
+        }                       // end if
+        ClientData blankClient; // constructor zeros out each data member
+        // output 100 blank records to file
+        for (int i = 0; i < 100; ++i)
+            outCredit.write(reinterpret_cast<const char *>(&blankClient),
+                            sizeof(ClientData));
+        outCredit.close();
     }
-    std::fstream backUpFile("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
+
+
+
+
+    // fstream inOutCredit("credit.dat", ios::out | ios::binary);
+    // if (!inOutCredit)
+    // {
+    //     cerr << "File could not be opened." << endl;
+    //     exit(EXIT_FAILURE);
+    // }
+
+
+
+    std::fstream backUpFile("../backup.dat", /*std::ios::in |*/ std::ios::out | std::ios::binary);
 
     if (!backUpFile)
     {
         std::cerr << "Backup File could not be opened." << std::endl;
         exit(EXIT_FAILURE);
-         //TODO: if the file doesn't exist iniate one with 100 cells
     }
     Choices choice;
 
@@ -86,11 +88,11 @@ int main(int argc, char const *argv[])
             deleteRecord(inOutCredit);
             break;
         case Choices::BACKUP:
-            backup(inOutCredit,backUpFile);
+            backup(inOutCredit, backUpFile);
             break;
         case Choices::RESTORE:
-            backup(backUpFile,inOutCredit);
-            break;    
+            backup(backUpFile, inOutCredit);
+            break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
             break;
@@ -119,41 +121,39 @@ Choices enterChoice()
     return static_cast<Choices>(menuChoice);
 }
 //BACKUP
-void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
-   //ATTEMPT 1
-   backUpFile.clear();
+void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
+{
+    //ATTEMPT 1
+    backUpFile.clear();
     std::string line;
-            while(getline(inOutCredit,line)){
-            backUpFile<< line << "\n";
-        }
- 
-        std::cout << "Copy Finished \n";
+    while (getline(inOutCredit, line))
+    {
+        backUpFile << line << "\n";
+    }
 
+    std::cout << "Copy Finished \n";
 
     //ATTEMPT 2
     // if (inOutCredit.is_open() && backUpFile.is_open())
-	// 	while (!inOutCredit.eof())
-	// 		backUpFile.put(inOutCredit.get());
-	// inOutCredit.close();
-	// backUpFile.close();
-
+    // 	while (!inOutCredit.eof())
+    // 		backUpFile.put(inOutCredit.get());
+    // inOutCredit.close();
+    // backUpFile.close();
 
     //ATTEMPT 3
-	// while (!inOutCredit.eof())
+    // while (!inOutCredit.eof())
     //     {
     //         auto c = inOutCredit.read( (char *) & ob, sizeof(ob));
-	// 	    backUpFile.write((char *) & c, sizeof(int));
+    // 	    backUpFile.write((char *) & c, sizeof(int));
     //     }
-	// inOutCredit.close();
-	// backUpFile.close();
-
+    // inOutCredit.close();
+    // backUpFile.close();
 
     //attempt4
 
-    std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
+    //std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
 
     //TODO: Fix backup and restore
-
 }
 void createTextFile(std::fstream &readFromFile)
 {
