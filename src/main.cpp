@@ -12,6 +12,7 @@ enum Choices
     NEW,
     DELETE,
     BACKUP,
+    RESTORE,
     END
 };
 
@@ -23,6 +24,7 @@ void deleteRecord(std::fstream &);
 void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
 void backup(std::fstream &,std::fstream &);
+void restore(std::fstream &,std::fstream &);
 
 int main(int argc, char const *argv[])
 {
@@ -40,7 +42,6 @@ int main(int argc, char const *argv[])
         std::cerr << "Backup File could not be opened." << std::endl;
         exit(EXIT_FAILURE);
     }
-
     Choices choice;
 
     while ((choice = enterChoice()) != Choices::END)
@@ -62,6 +63,9 @@ int main(int argc, char const *argv[])
         case Choices::BACKUP:
             backup(inOutCredit,backUpFile);
             break;
+        case Choices::RESTORE:
+            backup(backUpFile,inOutCredit);
+            break;    
         default:
             std::cerr << "Incorrect choice" << std::endl;
             break;
@@ -82,7 +86,8 @@ Choices enterChoice()
               << "3- add a new account" << std::endl
               << "4- delete an account" << std::endl
               << "5- Backup your account" << std::endl
-              << "6- end program\n? " << std::endl;
+              << "6- Restore your account" << std::endl
+              << "7- end program\n? " << std::endl;
     int menuChoice;
     std::cin >> menuChoice;
 
@@ -90,13 +95,36 @@ Choices enterChoice()
 }
 //BACKUP
 void backup(std::fstream &inOutCredit,std::fstream &backUpFile){
-    std::string line;
-            while(getline(inOutCredit,line)){
-            backUpFile<< line << "\n";
-        }
+   //ATTEMPT 1
+    // std::string line;
+    //         while(getline(inOutCredit,line)){
+    //         backUpFile<< line << "\n";
+    //     }
  
-        std::cout << "Copy Finished \n";
- 
+    //     std::cout << "Copy Finished \n";
+
+
+    //ATTEMPT 2
+    // if (inOutCredit.is_open() && backUpFile.is_open())
+	// 	while (!inOutCredit.eof())
+	// 		backUpFile.put(inOutCredit.get());
+	// inOutCredit.close();
+	// backUpFile.close();
+
+
+    //ATTEMPT 3
+	// while (!inOutCredit.eof())
+    //     {
+    //         auto c = inOutCredit.read( (char *) & ob, sizeof(ob));
+	// 	    backUpFile.write((char *) & c, sizeof(int));
+    //     }
+	// inOutCredit.close();
+	// backUpFile.close();
+
+
+    //attempt4
+
+    std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
 
 }
 void createTextFile(std::fstream &readFromFile)
