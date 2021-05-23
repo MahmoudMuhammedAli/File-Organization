@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
         // exit program if ofstream could not open file
         if (!inOutCredit)
         {
-            cerr << "File could not be opened." << endl;
+            cerr << "inOutCredit File could not be opened." << endl;
             exit(EXIT_FAILURE);
         }                       // end if
         ClientData blankClient; // constructor zeros out each data member
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
         // exit program if ofstream could not open file
         if (!backUpFile)
         {
-            cerr << "File could not be opened." << endl;
+            cerr << "backUpFile File could not be opened." << endl;
             exit(EXIT_FAILURE);
         } // end if
         ClientData blankClient;
