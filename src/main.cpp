@@ -27,7 +27,7 @@ void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
 void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
-void createPrimary(std::fstream &);
+void createPrimary(std::fstream &, std::fstream &);
 
 using namespace std;
 int main(int argc, char const *argv[])
@@ -122,7 +122,7 @@ int main(int argc, char const *argv[])
             backup(backUpFile, inOutCredit);
             break;
         case Choices::CreateIndexFiles:
-            createPrimary(inOutCredit);
+            createPrimary(primaryIndex,inOutCredit);
             break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
