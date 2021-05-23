@@ -27,7 +27,7 @@ void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
 void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
-void createPrimary(std::fstream &);
+void createPrimary(std::fstream &, std::fstream &);
 
 using namespace std;
 int main(int argc, char const *argv[])
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
         // exit program if ofstream could not open file
         if (!inOutCredit)
         {
-            cerr << "File could not be opened." << endl;
+            cerr << "inOutCredit File could not be opened." << endl;
             exit(EXIT_FAILURE);
         }                       // end if
         ClientData blankClient; // constructor zeros out each data member
@@ -52,13 +52,6 @@ int main(int argc, char const *argv[])
                               sizeof(ClientData));
         inOutCredit.close();
     }
-
-    // fstream inOutCredit("credit.dat", ios::out | ios::binary);
-    // if (!inOutCredit)
-    // {
-    //     cerr << "File could not be opened." << endl;
-    //     exit(EXIT_FAILURE);
-    // }
 
     fstream backUpFile;
     backUpFile.open("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
@@ -70,11 +63,10 @@ int main(int argc, char const *argv[])
         // exit program if ofstream could not open file
         if (!backUpFile)
         {
-            cerr << "File could not be opened." << endl;
+            cerr << "backUpFile File could not be opened." << endl;
             exit(EXIT_FAILURE);
-        }                       // end if
-        ClientData blankClient; // constructor zeros out each data member
-        // output 100 blank records to file
+        } // end if
+        ClientData blankClient;
         for (int i = 0; i < 100; ++i)
             backUpFile.write(reinterpret_cast<const char *>(&blankClient),
                              sizeof(ClientData));
@@ -92,8 +84,8 @@ int main(int argc, char const *argv[])
         }
         Primary blankClient;
         for (int i = 0; i < 100; ++i)
-            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
-                             sizeof(Primary));
+            primaryIndex.write(reinterpret_cast<const char *>(&blankClient),
+                               sizeof(Primary));
         primaryIndex.close();
     }
 
@@ -122,7 +114,7 @@ int main(int argc, char const *argv[])
             backup(backUpFile, inOutCredit);
             break;
         case Choices::CreateIndexFiles:
-            createPrimary(inOutCredit);
+            createPrimary(primaryIndex, inOutCredit);
             break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
@@ -193,11 +185,20 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
     cout << "COPY FINISHED!" << endl;
 }
 
-void createPrimary(std::fstream &primaryIndex,std::fstream &inOutCredit)
+void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
 {
+    Primary index;
+    inOutCredit.seekg(0);
+    ClientData client;
+    inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
 
-
-
+    while (!inOutCredit.eof())
+    {
+        index.setAccountNumber(client.getAccountNumber());
+        index.setOffset((client.getAccountNumber() - 1) * sizeof(ClientData));
+        primaryIndex.write(reinterpret_cast<const char *>(&index), sizeof(Primary));
+        inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
+    }
 }
 
 void createTextFile(std::fstream &readFromFile)
