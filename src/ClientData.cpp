@@ -1,9 +1,8 @@
 #include "../include/ClientData.hpp"
 #include <string>
-// welcome
 ClientData::ClientData(int accountNumberValue, const std::string &lastName,
-                       const std::string &firstName, double balanceValue,int branchID)
-    : accountNumber(accountNumberValue), balance(balanceValue)
+                       const std::string &firstName, double balanceValue,int branchIDval)
+    : accountNumber(accountNumberValue), balance(balanceValue) , branchID(branchIDval)
 {
     setFirstName(firstName);
     setLastName(lastName);

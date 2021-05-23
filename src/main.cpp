@@ -4,6 +4,7 @@
 #include <fstream>
 #include "../include/ClientData.hpp"
 #include "ClientData.cpp"
+#include "primary.cpp"
 
 enum Choices
 {
@@ -13,6 +14,7 @@ enum Choices
     DELETE,
     BACKUP,
     RESTORE,
+    CreateIndexFiles,
     END
 };
 
@@ -25,11 +27,12 @@ void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
 void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
+void createPrimary(std::fstream &);
 
 using namespace std;
 int main(int argc, char const *argv[])
 {
-    fstream inOutCredit ;
+    fstream inOutCredit;
     inOutCredit.open("../credit.dat", std::ios::in | std::ios::out | std::ios::binary);
 
     if (!inOutCredit)
@@ -46,12 +49,9 @@ int main(int argc, char const *argv[])
         // output 100 blank records to file
         for (int i = 0; i < 100; ++i)
             inOutCredit.write(reinterpret_cast<const char *>(&blankClient),
-                            sizeof(ClientData));
+                              sizeof(ClientData));
         inOutCredit.close();
     }
-
-
-
 
     // fstream inOutCredit("credit.dat", ios::out | ios::binary);
     // if (!inOutCredit)
@@ -60,15 +60,43 @@ int main(int argc, char const *argv[])
     //     exit(EXIT_FAILURE);
     // }
 
-
-
-    std::fstream backUpFile("../backup.dat", /*std::ios::in |*/ std::ios::out | std::ios::binary);
+    fstream backUpFile;
+    backUpFile.open("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
 
     if (!backUpFile)
     {
-        std::cerr << "Backup File could not be opened." << std::endl;
-        exit(EXIT_FAILURE);
+        backUpFile.open("../credit.dat", ios::out | ios::binary);
+
+        // exit program if ofstream could not open file
+        if (!backUpFile)
+        {
+            cerr << "File could not be opened." << endl;
+            exit(EXIT_FAILURE);
+        }                       // end if
+        ClientData blankClient; // constructor zeros out each data member
+        // output 100 blank records to file
+        for (int i = 0; i < 100; ++i)
+            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
+                             sizeof(ClientData));
+        backUpFile.close();
     }
+    fstream primaryIndex;
+    primaryIndex.open("../primary.dat", std::ios::in | std::ios::out | std::ios::binary);
+    if (!primaryIndex)
+    {
+        primaryIndex.open("../primary.dat", std::ios::out | std::ios::binary);
+        if (!primaryIndex)
+        {
+            cerr << "Primary File could not be opened." << endl;
+            exit(EXIT_FAILURE);
+        }
+        Primary blankClient;
+        for (int i = 0; i < 100; ++i)
+            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
+                             sizeof(Primary));
+        primaryIndex.close();
+    }
+
     Choices choice;
 
     while ((choice = enterChoice()) != Choices::END)
@@ -93,6 +121,9 @@ int main(int argc, char const *argv[])
         case Choices::RESTORE:
             backup(backUpFile, inOutCredit);
             break;
+        case Choices::CreateIndexFiles:
+            createPrimary(inOutCredit);
+            break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
             break;
@@ -114,7 +145,8 @@ Choices enterChoice()
               << "4- delete an account" << std::endl
               << "5- Backup your account" << std::endl
               << "6- Restore your account" << std::endl
-              << "7- end program\n? " << std::endl;
+              << "7- create primary files" << std::endl
+              << "8- end program\n? " << std::endl;
     int menuChoice;
     std::cin >> menuChoice;
 
@@ -153,17 +185,21 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
 
     //std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
 
-
-//attempt 5
-
+    //attempt 5
+    backUpFile.clear();
     copy(istreambuf_iterator<char>(inOutCredit),
-    istreambuf_iterator<char>(),
-    ostreambuf_iterator<char>(backUpFile)
-    );
-    cout<< "COPY FINISHED!"<<endl;
-
-    //TODO: Fix backup and restore
+         istreambuf_iterator<char>(),
+         ostreambuf_iterator<char>(backUpFile));
+    cout << "COPY FINISHED!" << endl;
 }
+
+void createPrimary(std::fstream &primaryIndex,std::fstream &inOutCredit)
+{
+
+
+
+}
+
 void createTextFile(std::fstream &readFromFile)
 {
     std::ofstream outPrintFile("../print.txt", std::ios::out);
@@ -173,7 +209,7 @@ void createTextFile(std::fstream &readFromFile)
         std::cerr << "File could not be created." << std::endl;
         exit(EXIT_FAILURE);
     }
-
+    outPrintFile.clear();
     outPrintFile << std::left << std::setw(10) << "Account" << std::setw(16)
                  << "Last Name" << std::setw(11) << "First Name" << std::right
                  << std::setw(10) << "Balance" << std::endl;
@@ -185,7 +221,6 @@ void createTextFile(std::fstream &readFromFile)
 
     while (!readFromFile.eof())
     {
-        //das
         if (client.getAccountNumber() != 0)
             outputLine(outPrintFile, client);
 
@@ -258,7 +293,6 @@ void newRecord(std::fstream &insertInFile)
         std::cerr << "Account #" << accountNumber
                   << " already contains information." << std::endl;
     }
-    insertInFile.close();
 }
 
 void deleteRecord(std::fstream &deleteFromFile)
