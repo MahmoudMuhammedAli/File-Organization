@@ -232,7 +232,6 @@ void createsecondary(std::fstream &secondaryIndex, std::fstream &inOutCredit)
     }
   while (!inOutCredit.eof())
     {
-        secondaryIndex.seekg(i * sizeof(secondary));
         index.setLastName(client.getLastName());
         secondaryIndex.write(reinterpret_cast<const char *>(&arr[i]), sizeof(secondary));
     }
