@@ -1,5 +1,0 @@
-Account   Last Name       First Name    Balance    Branch
-1         ddd             eee            777.00        88
-2         www             eee            888.00       777
-5         d               e                7.00         8
-57        e               r                5.00         8

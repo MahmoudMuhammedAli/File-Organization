@@ -134,7 +134,7 @@ int main(int argc, char const *argv[])
             backup(inOutCredit, backUpFile);
             break;
         case Choices::RESTORE:
-            backup(inOutCredit, backUpFile);
+            restore(inOutCredit, backUpFile);
             break;
         case Choices::CreatePrimaryIndex:
             createPrimary(primaryIndex, inOutCredit);
@@ -182,7 +182,7 @@ Choices enterChoice()
 //BACKUP
 void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
 {
-
+    backUpFile.open("../backup.dat" , std::ios::out | std::ios::trunc );
     backUpFile.clear();
     copy(istreambuf_iterator<char>(inOutCredit),
          istreambuf_iterator<char>(),
@@ -230,10 +230,12 @@ void createsecondary(std::fstream &secondaryIndex, std::fstream &inOutCredit)
             }
         }
     }
+    int counter=0;
   while (!inOutCredit.eof())
     {
         index.setLastName(client.getLastName());
-        secondaryIndex.write(reinterpret_cast<const char *>(&arr[i]), sizeof(secondary));
+        secondaryIndex.write(reinterpret_cast<const char *>(&arr[counter]), sizeof(secondary));
+        counter++;
     }
 }
 
