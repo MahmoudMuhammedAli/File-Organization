@@ -31,7 +31,7 @@ void deleteRecord(std::fstream &);
 void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
 void backup(std::fstream &);
-void restore(std::fstream &, std::fstream &);
+void restore(std::fstream &);
 void createPrimary(std::fstream &, std::fstream &);
 void textForPrimary(std::fstream &);
 void createsecondary(std::fstream &, std::fstream &);
@@ -134,7 +134,7 @@ int main(int argc, char const *argv[])
             backup(inOutCredit);
             break;
         case Choices::RESTORE:
-            restore(backUpFile, inOutCredit);
+           // restore(inOutCredit);
             break;
         case Choices::CreatePrimaryIndex:
             createPrimary(primaryIndex, inOutCredit);
@@ -188,25 +188,14 @@ Choices enterChoice()
 void backup(std::fstream &inOutCredit)
 {
     // backUpFile.open("../backup.dat",std::ios::out | std::ios::binary|std::ios::trunc);
-   fstream backUpFile;
-    backUpFile.open("../backup.dat", std::ios::out | std::ios::binary);
-
-    if (!backUpFile)
-    {
-        backUpFile.open("../backup.dat", ios::out | ios::binary);
-
-        // exit program if ofstream could not open file
-        if (!backUpFile)
+   fstream backUpFile("../backup.dat", std::ios::out | std::ios::binary|std::ios::trunc);
+     if (!backUpFile)
         {
             cerr << "backUpFile File could not be opened." << endl;
             exit(EXIT_FAILURE);
-        } // end if
-        ClientData blankClient;
-        for (int i = 0; i < 100; ++i)
-            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
-                             sizeof(ClientData));
-        backUpFile.close();
-    }
+        } 
+
+
     copy(istreambuf_iterator<char>(inOutCredit),
          istreambuf_iterator<char>(),
          ostreambuf_iterator<char>(backUpFile));
@@ -215,16 +204,16 @@ void backup(std::fstream &inOutCredit)
 
 
 
-//RESTORE
-void restore(std::fstream &back, std::fstream &main)
-{
-    main.open("../credit.dat",std::ios::out | std::ios::binary|std::ios::trunc);
+// //RESTORE
+// void restore(std::fstream &main)
+// {
+//     main.open("../credit.dat",std::ios::out | std::ios::binary|std::ios::trunc);
 
-    copy(istreambuf_iterator<char>(back),
-         istreambuf_iterator<char>(),
-         ostreambuf_iterator<char>(main));
-    cout << "COPY FINISHED!" << endl;
-}
+//     copy(istreambuf_iterator<char>(back),
+//          istreambuf_iterator<char>(),
+//          ostreambuf_iterator<char>(main));
+//     cout << "COPY FINISHED!" << endl;
+// }
 
 
 
