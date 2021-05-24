@@ -17,6 +17,7 @@ enum Choices
     BACKUP,
     RESTORE,
     CreateIndexFiles,
+    TextForPrimary,
     END
 };
 
@@ -30,6 +31,7 @@ int getAccount(const char *const);
 void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
 void createPrimary(std::fstream &, std::fstream &);
+void textForPrimary(std::fstream &);
 
 using namespace std;
 int main(int argc, char const *argv[])
@@ -118,6 +120,9 @@ int main(int argc, char const *argv[])
         case Choices::CreateIndexFiles:
             createPrimary(primaryIndex, inOutCredit);
             break;
+        case Choices::TextForPrimary:
+            textForPrimary(primaryIndex);
+            break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
             break;
@@ -140,7 +145,8 @@ Choices enterChoice()
               << "5- Backup your account" << std::endl
               << "6- Restore your account" << std::endl
               << "7- create primary files" << std::endl
-              << "8- end program\n? " << std::endl;
+              << "8- convert primary to text" << std::endl
+              << "9- end program\n? " << std::endl;
     int menuChoice;
     std::cin >> menuChoice;
 
@@ -203,6 +209,32 @@ void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
     }
 }
 
+void textForPrimary(std::fstream &readFromFile)
+{
+    std::ofstream outPrintFile("../primaryIndex.txt", std::ios::out);
+
+    if (!outPrintFile)
+    {
+        std::cerr << "File could not be created." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    outPrintFile.clear();
+    outPrintFile << std::left << std::setw(10) << "Account" << std::setw(10) << "offset" << std::endl;
+
+    readFromFile.seekg(0);
+
+    Primary index;
+    readFromFile.read(reinterpret_cast<char *>(&index), sizeof(Primary));
+
+    while (!readFromFile.eof())
+    {
+        if (index.getAccountNumber() != 0)
+            outputIndex(outPrintFile, index);
+
+        readFromFile.read(reinterpret_cast<char *>(&index), sizeof(Primary));
+    }
+}
+
 void createTextFile(std::fstream &readFromFile)
 {
     std::ofstream outPrintFile("../print.txt", std::ios::out);
@@ -215,7 +247,7 @@ void createTextFile(std::fstream &readFromFile)
     outPrintFile.clear();
     outPrintFile << std::left << std::setw(10) << "Account" << std::setw(16)
                  << "Last Name" << std::setw(11) << "First Name" << std::right
-                 << std::setw(10) << "Balance" << std::endl;
+                 << std::setw(10) << "Balance" << std::setw(10) << "Branch" << std::setw(16) << std::endl;
 
     readFromFile.seekg(0);
 
@@ -276,17 +308,19 @@ void newRecord(std::fstream &insertInFile)
         std::string lastName;
         std::string firstName;
         double balance;
+        int branchID;
 
-        std::cout << "Enter lastname, firstname, balance\n? ";
+        std::cout << "Enter lastname, firstname, balance , branchID\n? ";
         std::cin >> std::setw(15) >> lastName;
         std::cin >> std::setw(10) >> firstName;
         std::cin >> balance;
+        cin >> branchID;
 
         client.setLastName(lastName);
         client.setFirstName(firstName);
         client.setBalance(balance);
         client.setAccountNumber(accountNumber);
-
+        client.setBranchID(branchID);
         insertInFile.seekp((accountNumber - 1) * sizeof(ClientData));
 
         insertInFile.write(reinterpret_cast<const char *>(&client), sizeof(ClientData));
@@ -328,9 +362,14 @@ void outputLine(std::ostream &output, const ClientData &record)
            << std::setw(16) << record.getLastName()
            << std::setw(11) << record.getFirstName()
            << std::setw(10) << std::setprecision(2) << std::right << std::fixed
-           << std::showpoint << record.getBalance() << std::endl;
+           << std::showpoint << record.getBalance() << std::endl
+           << std::setw(10) << record.getBranchID();
 }
-
+void outputIndex(std::ostream &output, const Primary &record)
+{
+    output << std::left << std::setw(10) << record.getAccountNumber()
+           << std::setw(10) << record.getOffset() << std::endl;
+}
 int getAccount(const char *const prompt)
 {
     int accountNumber;
