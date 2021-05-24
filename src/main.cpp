@@ -188,6 +188,7 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
          istreambuf_iterator<char>(),
          ostreambuf_iterator<char>(backUpFile));
     cout << "Backup finished!" << endl;
+
 }
 void restore(std::fstream &inOutCredit, std::fstream &backUpFile)
 {
@@ -451,7 +452,14 @@ int getAccount(const char *const prompt)
     } while (accountNumber < 1 || accountNumber > 100);
 
     return accountNumber;
-} //ATTEMPT 1
+} 
+
+
+
+
+
+
+//ATTEMPT 1
   // backUpFile.clear();
   // std::string line;
   // while (getline(inOutCredit, line))
