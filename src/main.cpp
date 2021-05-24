@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <fstream>
 #include "../include/ClientData.hpp"
-// #include "../include/secondary.hpp"
 #include "ClientData.cpp"
 #include "secondary.cpp"
 #include "primary.cpp"
@@ -32,6 +31,7 @@ void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
 void createPrimary(std::fstream &, std::fstream &);
 void textForPrimary(std::fstream &);
+// void outputIndex(std::ostream &, const Primary &);
 
 using namespace std;
 int main(int argc, char const *argv[])
@@ -229,11 +229,17 @@ void textForPrimary(std::fstream &readFromFile)
     while (!readFromFile.eof())
     {
         if (index.getAccountNumber() != 0)
-            outputIndex(outPrintFile, index);
+           outPrintFile << std::left << std::setw(10) << index.getAccountNumber()
+           << std::setw(10) << index.getOffset() << std::endl;
 
         readFromFile.read(reinterpret_cast<char *>(&index), sizeof(Primary));
     }
 }
+// void outputIndex(std::ofstream &output, const Primary &record)
+// {
+//     output << std::left << std::setw(10) << record.getAccountNumber()
+//            << std::setw(10) << record.getOffset() << std::endl;
+// }
 
 void createTextFile(std::fstream &readFromFile)
 {
@@ -362,14 +368,10 @@ void outputLine(std::ostream &output, const ClientData &record)
            << std::setw(16) << record.getLastName()
            << std::setw(11) << record.getFirstName()
            << std::setw(10) << std::setprecision(2) << std::right << std::fixed
-           << std::showpoint << record.getBalance() << std::endl
-           << std::setw(10) << record.getBranchID();
+           << std::showpoint << record.getBalance() 
+           << std::setw(10) << record.getBranchID()<< std::endl;
 }
-void outputIndex(std::ostream &output, const Primary &record)
-{
-    output << std::left << std::setw(10) << record.getAccountNumber()
-           << std::setw(10) << record.getOffset() << std::endl;
-}
+
 int getAccount(const char *const prompt)
 {
     int accountNumber;
