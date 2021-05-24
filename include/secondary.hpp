@@ -5,7 +5,7 @@ class secondary
 private:
     char lastName[15];
     int accountNumber;
-    int offset;
+
 
 
 public:
@@ -17,7 +17,5 @@ public:
     void setAccountNumber(int);
     int getAccountNumber() const;
 
-    void setOffset(int);
-    int getOffset() const;
 };
 
