@@ -1,23 +1,26 @@
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
+#include <array>
 #include <fstream>
 #include "../include/ClientData.hpp"
-// #include "../include/secondary.hpp"
 #include "ClientData.cpp"
 #include "secondary.cpp"
 #include "primary.cpp"
 
 enum Choices
 {
+    END = 0,
     PRINT = 1,
     UPDATE,
     NEW,
     DELETE,
     BACKUP,
     RESTORE,
-    CreateIndexFiles,
-    END
+    CreatePrimaryIndex,
+    CreateSecondaryIndex,
+    TextForPrimary,
+    TextForSecondary,
 };
 
 Choices enterChoice();
@@ -30,7 +33,10 @@ int getAccount(const char *const);
 void backup(std::fstream &, std::fstream &);
 void restore(std::fstream &, std::fstream &);
 void createPrimary(std::fstream &, std::fstream &);
-
+void textForPrimary(std::fstream &);
+void createsecondary(std::fstream &, std::fstream &);
+void textForsecondary(std::fstream &);
+static secondary arr[100];
 using namespace std;
 int main(int argc, char const *argv[])
 {
@@ -60,7 +66,7 @@ int main(int argc, char const *argv[])
 
     if (!backUpFile)
     {
-        backUpFile.open("../credit.dat", ios::out | ios::binary);
+        backUpFile.open("../backup.dat", ios::out | ios::binary);
 
         // exit program if ofstream could not open file
         if (!backUpFile)
@@ -75,7 +81,7 @@ int main(int argc, char const *argv[])
         backUpFile.close();
     }
     fstream primaryIndex;
-    primaryIndex.open("../primary.dat", std::ios::in | std::ios::out | std::ios::binary);
+    primaryIndex.open("../primary.dat", std::ios::in | std::ios::out | std::ios::binary | std::ofstream::trunc);
     if (!primaryIndex)
     {
         primaryIndex.open("../primary.dat", std::ios::out | std::ios::binary);
@@ -90,7 +96,22 @@ int main(int argc, char const *argv[])
                                sizeof(Primary));
         primaryIndex.close();
     }
-
+    fstream secondaryIndex;
+    secondaryIndex.open("../secondary.dat", std::ios::in | std::ios::out | std::ios::binary);
+    if (!secondaryIndex)
+    {
+        secondaryIndex.open("../secondary.dat", std::ios::out | std::ios::binary);
+        if (!secondaryIndex)
+        {
+            cerr << "secondary File could not be opened." << endl;
+            exit(EXIT_FAILURE);
+        }
+        secondary blankClient;
+        for (int i = 0; i < 100; ++i)
+            secondaryIndex.write(reinterpret_cast<const char *>(&blankClient),
+                                 sizeof(secondary));
+        secondaryIndex.close();
+    }
     Choices choice;
 
     while ((choice = enterChoice()) != Choices::END)
@@ -115,8 +136,17 @@ int main(int argc, char const *argv[])
         case Choices::RESTORE:
             backup(backUpFile, inOutCredit);
             break;
-        case Choices::CreateIndexFiles:
+        case Choices::CreatePrimaryIndex:
             createPrimary(primaryIndex, inOutCredit);
+            break;
+        case Choices::CreateSecondaryIndex:
+            createPrimary(secondaryIndex, inOutCredit);
+            break;
+        case Choices::TextForPrimary:
+            textForPrimary(primaryIndex);
+            break;
+        case Choices::TextForSecondary:
+            textForsecondary(secondaryIndex);
             break;
         default:
             std::cerr << "Incorrect choice" << std::endl;
@@ -139,8 +169,11 @@ Choices enterChoice()
               << "4- delete an account" << std::endl
               << "5- Backup your account" << std::endl
               << "6- Restore your account" << std::endl
-              << "7- create primary files" << std::endl
-              << "8- end program\n? " << std::endl;
+              << "7- create primary index" << std::endl
+              << "8- create secondary index" << std::endl
+              << "9- convert primary to text" << std::endl
+              << "10- convert secondary to text" << std::endl
+              << "0- end program\n? " << std::endl;
     int menuChoice;
     std::cin >> menuChoice;
 
@@ -186,9 +219,75 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
          ostreambuf_iterator<char>(backUpFile));
     cout << "COPY FINISHED!" << endl;
 }
+void createsecondary(std::fstream &secondaryIndex, std::fstream &inOutCredit)
+{
+    secondary index;
+    inOutCredit.seekg(0);
+    ClientData client;
+    inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
 
+    
+    int count = 0;
+    for (int i = 0; i < 100; i++)
+    {
+        if (client.getAccountNumber() != 0)
+        {
+            secondaryIndex.seekg(i * sizeof(secondary));
+            index.setLastName(client.getLastName());
+            index.setAccountNumber(client.getAccountNumber());
+            arr[i] = index;
+            count++;
+        }
+    }
+
+    secondary temp;
+    for (int i = 0; i < count; i++)
+    {
+        for (int j = i + 1; j < count; j++)
+        {
+            if (arr[j].getLastName() < arr[i].getLastName())
+            {
+                temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < count; i++)
+    {
+        secondaryIndex.write(reinterpret_cast<const char *>(&arr[i]), sizeof(secondary));
+    }
+}
+
+void textForsecondary(std::fstream &readFromFile)
+{
+    std::ofstream outPrintFile("../secondaryIndex.txt", std::ios::out | std::ios::trunc);
+    outPrintFile.clear();
+    if (!outPrintFile)
+    {
+        std::cerr << "File could not be created." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    outPrintFile.clear();
+    outPrintFile << std::left << std::setw(14) << "Last Name" << std::setw(14) << "Account" << std::endl;
+
+    readFromFile.seekg(0);
+
+    secondary index;
+    readFromFile.read(reinterpret_cast<char *>(&index), sizeof(secondary));
+
+    while (!readFromFile.eof())
+    {
+        if (index.getAccountNumber() != 0)
+            outPrintFile << std::left << std::setw(14) << arr[0].getLastName()
+                         << std::setw(14) << arr[0].getAccountNumber() << std::endl;
+
+        readFromFile.read(reinterpret_cast<char *>(&index), sizeof(secondary));
+    }
+}
 void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
 {
+
     Primary index;
     inOutCredit.seekg(0);
     ClientData client;
@@ -200,6 +299,33 @@ void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
         index.setOffset((client.getAccountNumber() - 1) * sizeof(ClientData));
         primaryIndex.write(reinterpret_cast<const char *>(&index), sizeof(Primary));
         inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
+    }
+}
+
+void textForPrimary(std::fstream &readFromFile)
+{
+    std::ofstream outPrintFile("../primaryIndex.txt", std::ios::out | std::ios::trunc);
+    outPrintFile.clear();
+    if (!outPrintFile)
+    {
+        std::cerr << "File could not be created." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    outPrintFile.clear();
+    outPrintFile << std::left << std::setw(10) << "Account" << std::setw(10) << "offset" << std::endl;
+
+    readFromFile.seekg(0);
+
+    Primary index;
+    readFromFile.read(reinterpret_cast<char *>(&index), sizeof(Primary));
+
+    while (!readFromFile.eof())
+    {
+        if (index.getAccountNumber() != 0)
+            outPrintFile << std::left << std::setw(10) << index.getAccountNumber()
+                         << std::setw(10) << index.getOffset() << std::endl;
+
+        readFromFile.read(reinterpret_cast<char *>(&index), sizeof(Primary));
     }
 }
 
@@ -215,7 +341,7 @@ void createTextFile(std::fstream &readFromFile)
     outPrintFile.clear();
     outPrintFile << std::left << std::setw(10) << "Account" << std::setw(16)
                  << "Last Name" << std::setw(11) << "First Name" << std::right
-                 << std::setw(10) << "Balance" << std::endl;
+                 << std::setw(10) << "Balance" << std::setw(10) << "Branch" << std::setw(16) << std::endl;
 
     readFromFile.seekg(0);
 
@@ -276,17 +402,19 @@ void newRecord(std::fstream &insertInFile)
         std::string lastName;
         std::string firstName;
         double balance;
+        int branchID;
 
-        std::cout << "Enter lastname, firstname, balance\n? ";
+        std::cout << "Enter lastname, firstname, balance , branchID\n? ";
         std::cin >> std::setw(15) >> lastName;
         std::cin >> std::setw(10) >> firstName;
         std::cin >> balance;
+        cin >> branchID;
 
         client.setLastName(lastName);
         client.setFirstName(firstName);
         client.setBalance(balance);
         client.setAccountNumber(accountNumber);
-
+        client.setBranchID(branchID);
         insertInFile.seekp((accountNumber - 1) * sizeof(ClientData));
 
         insertInFile.write(reinterpret_cast<const char *>(&client), sizeof(ClientData));
@@ -328,7 +456,8 @@ void outputLine(std::ostream &output, const ClientData &record)
            << std::setw(16) << record.getLastName()
            << std::setw(11) << record.getFirstName()
            << std::setw(10) << std::setprecision(2) << std::right << std::fixed
-           << std::showpoint << record.getBalance() << std::endl;
+           << std::showpoint << record.getBalance()
+           << std::setw(10) << record.getBranchID() << std::endl;
 }
 
 int getAccount(const char *const prompt)

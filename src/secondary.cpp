@@ -2,7 +2,7 @@
 #include <string>
 
 secondary::secondary( const std::string &lastName,int accountNumberValue, int offsetValue)
-    : accountNumber(accountNumberValue),offset(offsetValue)
+    : accountNumber(accountNumberValue)
 {
     setLastName(lastName);
 }
@@ -30,11 +30,3 @@ int secondary::getAccountNumber() const
     return accountNumber;
 }
 
-int secondary::getOffset() const
-{
-    return offset;
-}
-void secondary::setOffset(int offsetValue)
-{
-    offset = offsetValue;
-}
