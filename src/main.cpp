@@ -58,7 +58,7 @@ int main(int argc, char const *argv[])
 
     if (!backUpFile)
     {
-        backUpFile.open("../credit.dat", ios::out | ios::binary);
+        backUpFile.open("../backup.dat", ios::out | ios::binary);
 
         // exit program if ofstream could not open file
         if (!backUpFile)
