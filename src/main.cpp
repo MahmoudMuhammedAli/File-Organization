@@ -30,7 +30,7 @@ void newRecord(std::fstream &);
 void deleteRecord(std::fstream &);
 void outputLine(std::ostream &, const ClientData &);
 int getAccount(const char *const);
-void backup(std::fstream &, std::fstream &);
+void backup(std::fstream &);
 void restore(std::fstream &, std::fstream &);
 void createPrimary(std::fstream &, std::fstream &);
 void textForPrimary(std::fstream &);
@@ -61,25 +61,25 @@ int main(int argc, char const *argv[])
         inOutCredit.close();
     }
 
-    fstream backUpFile;
-    backUpFile.open("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
+    // fstream backUpFile;
+    // backUpFile.open("../backup.dat", std::ios::in | std::ios::out | std::ios::binary);
 
-    if (!backUpFile)
-    {
-        backUpFile.open("../backup.dat", ios::out | ios::binary);
+    // if (!backUpFile)
+    // {
+    //     backUpFile.open("../backup.dat", ios::out | ios::binary);
 
-        // exit program if ofstream could not open file
-        if (!backUpFile)
-        {
-            cerr << "backUpFile File could not be opened." << endl;
-            exit(EXIT_FAILURE);
-        } // end if
-        ClientData blankClient;
-        for (int i = 0; i < 100; ++i)
-            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
-                             sizeof(ClientData));
-        backUpFile.close();
-    }
+    //     // exit program if ofstream could not open file
+    //     if (!backUpFile)
+    //     {
+    //         cerr << "backUpFile File could not be opened." << endl;
+    //         exit(EXIT_FAILURE);
+    //     } // end if
+    //     ClientData blankClient;
+    //     for (int i = 0; i < 100; ++i)
+    //         backUpFile.write(reinterpret_cast<const char *>(&blankClient),
+    //                          sizeof(ClientData));
+    //     backUpFile.close();
+    // }
     fstream primaryIndex;
     primaryIndex.open("../primary.dat", std::ios::in | std::ios::out | std::ios::binary | std::ofstream::trunc);
     if (!primaryIndex)
@@ -131,10 +131,10 @@ int main(int argc, char const *argv[])
             deleteRecord(inOutCredit);
             break;
         case Choices::BACKUP:
-            backup(inOutCredit, backUpFile);
+            backup(inOutCredit);
             break;
         case Choices::RESTORE:
-            backup(backUpFile, inOutCredit);
+            restore(backUpFile, inOutCredit);
             break;
         case Choices::CreatePrimaryIndex:
             createPrimary(primaryIndex, inOutCredit);
@@ -180,45 +180,58 @@ Choices enterChoice()
     return static_cast<Choices>(menuChoice);
 }
 //BACKUP
-void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
+
+
+
+
+
+void backup(std::fstream &inOutCredit)
 {
-    //ATTEMPT 1
-    // backUpFile.clear();
-    // std::string line;
-    // while (getline(inOutCredit, line))
-    // {
-    //     backUpFile << line << "\n";
-    // }
+    // backUpFile.open("../backup.dat",std::ios::out | std::ios::binary|std::ios::trunc);
+   fstream backUpFile;
+    backUpFile.open("../backup.dat", std::ios::out | std::ios::binary);
 
-    // std::cout << "Copy Finished \n";
+    if (!backUpFile)
+    {
+        backUpFile.open("../backup.dat", ios::out | ios::binary);
 
-    //ATTEMPT 2
-    // if (inOutCredit.is_open() && backUpFile.is_open())
-    // 	while (!inOutCredit.eof())
-    // 		backUpFile.put(inOutCredit.get());
-    // inOutCredit.close();
-    // backUpFile.close();
-
-    //ATTEMPT 3
-    // while (!inOutCredit.eof())
-    //     {
-    //         auto c = inOutCredit.read( (char *) & ob, sizeof(ob));
-    // 	    backUpFile.write((char *) & c, sizeof(int));
-    //     }
-    // inOutCredit.close();
-    // backUpFile.close();
-
-    //attempt4
-
-    //std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
-
-    //attempt 5
-    backUpFile.clear();
+        // exit program if ofstream could not open file
+        if (!backUpFile)
+        {
+            cerr << "backUpFile File could not be opened." << endl;
+            exit(EXIT_FAILURE);
+        } // end if
+        ClientData blankClient;
+        for (int i = 0; i < 100; ++i)
+            backUpFile.write(reinterpret_cast<const char *>(&blankClient),
+                             sizeof(ClientData));
+        backUpFile.close();
+    }
     copy(istreambuf_iterator<char>(inOutCredit),
          istreambuf_iterator<char>(),
          ostreambuf_iterator<char>(backUpFile));
     cout << "COPY FINISHED!" << endl;
 }
+
+
+
+//RESTORE
+void restore(std::fstream &back, std::fstream &main)
+{
+    main.open("../credit.dat",std::ios::out | std::ios::binary|std::ios::trunc);
+
+    copy(istreambuf_iterator<char>(back),
+         istreambuf_iterator<char>(),
+         ostreambuf_iterator<char>(main));
+    cout << "COPY FINISHED!" << endl;
+}
+
+
+
+
+
+
+
 void createsecondary(std::fstream &secondaryIndex, std::fstream &inOutCredit)
 {
     secondary index;
@@ -259,6 +272,17 @@ void createsecondary(std::fstream &secondaryIndex, std::fstream &inOutCredit)
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
 void textForsecondary(std::fstream &readFromFile)
 {
     std::ofstream outPrintFile("../secondaryIndex.txt", std::ios::out | std::ios::trunc);
@@ -285,6 +309,17 @@ void textForsecondary(std::fstream &readFromFile)
         readFromFile.read(reinterpret_cast<char *>(&index), sizeof(secondary));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
 {
 
@@ -301,6 +336,16 @@ void createPrimary(std::fstream &primaryIndex, std::fstream &inOutCredit)
         inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 void textForPrimary(std::fstream &readFromFile)
 {
@@ -329,6 +374,17 @@ void textForPrimary(std::fstream &readFromFile)
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
 void createTextFile(std::fstream &readFromFile)
 {
     std::ofstream outPrintFile("../print.txt", std::ios::out);
@@ -356,6 +412,14 @@ void createTextFile(std::fstream &readFromFile)
         readFromFile.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
     }
 }
+
+
+
+
+
+
+
+
 
 void updateRecord(std::fstream &updateFile)
 {
@@ -471,4 +535,34 @@ int getAccount(const char *const prompt)
     } while (accountNumber < 1 || accountNumber > 100);
 
     return accountNumber;
-}
+}    //ATTEMPT 1
+    // backUpFile.clear();
+    // std::string line;
+    // while (getline(inOutCredit, line))
+    // {
+    //     backUpFile << line << "\n";
+    // }
+
+    // std::cout << "Copy Finished \n";
+
+    //ATTEMPT 2
+    // if (inOutCredit.is_open() && backUpFile.is_open())
+    // 	while (!inOutCredit.eof())
+    // 		backUpFile.put(inOutCredit.get());
+    // inOutCredit.close();
+    // backUpFile.close();
+
+    //ATTEMPT 3
+    // while (!inOutCredit.eof())
+    //     {
+    //         auto c = inOutCredit.read( (char *) & ob, sizeof(ob));
+    // 	    backUpFile.write((char *) & c, sizeof(int));
+    //     }
+    // inOutCredit.close();
+    // backUpFile.close();
+
+    //attempt4
+
+    //std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
+
+    //attempt 5
