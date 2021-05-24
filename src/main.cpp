@@ -188,7 +188,6 @@ void backup(std::fstream &inOutCredit, std::fstream &backUpFile)
          istreambuf_iterator<char>(),
          ostreambuf_iterator<char>(backUpFile));
     cout << "Backup finished!" << endl;
-
 }
 void restore(std::fstream &inOutCredit, std::fstream &backUpFile)
 {
@@ -455,60 +454,3 @@ int getAccount(const char *const prompt)
 } 
 
 
-
-
-
-
-//ATTEMPT 1
-  // backUpFile.clear();
-  // std::string line;
-  // while (getline(inOutCredit, line))
-  // {
-  //     backUpFile << line << "\n";
-  // }
-
-// std::cout << "Copy Finished \n";
-
-//ATTEMPT 2
-// if (inOutCredit.is_open() && backUpFile.is_open())
-// 	while (!inOutCredit.eof())
-// 		backUpFile.put(inOutCredit.get());
-// inOutCredit.close();
-// backUpFile.close();
-
-//ATTEMPT 3
-// while (!inOutCredit.eof())
-//     {
-//         auto c = inOutCredit.read( (char *) & ob, sizeof(ob));
-// 	    backUpFile.write((char *) & c, sizeof(int));
-//     }
-// inOutCredit.close();
-// backUpFile.close();
-
-//attempt4
-
-//std::ofstream("Backup.dat") << std::ifstream("credit.dat").rdbuf();
-
-//attempt 5
-
-// backUpFile.clear();
-// copy(istreambuf_iterator<char>(inOutCredit),
-//      istreambuf_iterator<char>(),
-//      ostreambuf_iterator<char>(backUpFile));
-// cout << "COPY FINISHED!" << endl;
-//attempt 6
-    // ClientData newClient;
-    // ClientData client;
-    // inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
-
-    // while (!inOutCredit.eof())
-    // {
-    //     newClient.setAccountNumber(client.getAccountNumber());
-    //     newClient.setLastName(client.getLastName());
-    //     newClient.setFirstName(client.getFirstName());
-    //     newClient.setBalance(client.getBalance());
-    //     newClient.setBranchID(client.getBranchID());
-
-    //     backUpFile.write(reinterpret_cast<const char *>(&newClient), sizeof(ClientData));
-    //     inOutCredit.read(reinterpret_cast<char *>(&client), sizeof(ClientData));
-    // }

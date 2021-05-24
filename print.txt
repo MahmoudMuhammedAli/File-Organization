@@ -1,6 +1,2 @@
 Account   Last Name       First Name    Balance    Branch
-1         das             sfs              4.00         5
-2         rania           ashraf          77.00        77
-3         ranooosh        elmozza         55.00        55
-1         das             sfs              4.00         5
-2         rania           ashraf          77.00        77
+1         eslam           mohey          789.00        84
